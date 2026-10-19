@@ -67,6 +67,7 @@ input{flex:1}
 <div class="wrap">
 <div class="stage">
   <div class="top"><b>🏆 حرب الدول</b><span class="rt" id="rt"></span><span class="gap" id="gap"></span></div>
+  <div id="lv" style="text-align:center;font-weight:800;font-size:14px;padding:6px 8px;color:#ffd24a">⏳ بانتظار البث...</div>
   <div class="sticky">✍️ اكتب اسم دولتك وادعمها!</div>
   <div class="tip" id="tip"></div>
   <div class="ev" id="ev"></div>
@@ -118,6 +119,7 @@ function byId(id){return C.filter(function(c){return c.id===id})[0]}
 function norm(t){return (t||"").toLowerCase().replace(/[\u064B-\u0652\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي")}
 function clean(h){h=(h||"").trim().replace(/\s+/g,"");if(!h)h="@guest";if(h[0]!=="@")h="@"+h;return h.slice(0,22)}
 function lab(c){return c.f+" "+c.n}
+function setLv(t){var e=$("lv");if(e)e.textContent=t}
 function ev(text,pri){
  if(!pri&&Date.now()<st.hold)return;
  if(pri)st.hold=Date.now()+2500;
@@ -327,11 +329,12 @@ if(LIVE){
  st.bots=false;resetGame(true);var pn=document.querySelector(".panel");if(pn)pn.style.display="none";
  (function conn(){
   var ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
+  ws.onopen=function(){setLv("🔌 متصل بالجسر، بانتظار البث...")};
   ws.onmessage=function(m){var d;try{d=JSON.parse(m.data)}catch(e){return}
    if(d.t==="chat")comment(clean(d.u),String(d.c||"").slice(0,200));
    else if(d.t==="gift")gift(clean(d.u),d.k,pickCountry().id);
-   else if(d.t==="status")ev(d.s==="live"?"\ud83d\udd34 \u0645\u062a\u0635\u0644 \u0628\u0627\u0644\u0628\u062b":"\u23f3 \u0628\u0627\u0646\u062a\u0638\u0627\u0631 \u0627\u0644\u0628\u062b...",true)};
-  ws.onclose=function(){setTimeout(conn,3000)};
+   else if(d.t==="status")setLv(d.s==="live"?"\ud83d\udd34 \u0645\u062a\u0635\u0644 \u0628\u0627\u0644\u0628\u062b":"\u23f3 \u0628\u0627\u0646\u062a\u0638\u0627\u0631 \u0627\u0644\u0628\u062b...",true)};
+  ws.onclose=function(){setLv("⚠️ انقطع الاتصال بالجسر، يعيد المحاولة...");setTimeout(conn,3000)};
  })();
 }
 $("ev").textContent=DEF;render();renderPin();
