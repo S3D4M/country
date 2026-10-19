@@ -41,11 +41,14 @@ function start() {
   if (!USER) return;
   conn = new TikTokLiveConnection(USER, KEY ? { signApiKey: KEY } : {});
   conn.on(WebcastEvent.CHAT, (d) => {
-    send({ t: 'chat', u: d.user?.uniqueId || d.uniqueId, c: d.comment });
+    const cu = d.user?.uniqueId || d.uniqueId;
+    console.log('تعليق من', cu, ':', d.comment);
+    send({ t: 'chat', u: cu, c: d.comment });
   });
   conn.on(WebcastEvent.GIFT, (d) => {
     if (d.giftType === 1 && !d.repeatEnd) return; // سلسلة هدايا لسا شغالة، ننتظر نهايتها
     const dc = (d.diamondCount || d.giftDetails?.diamondCount || 1) * (d.repeatCount || 1);
+    console.log('هدية من', d.user?.uniqueId || d.uniqueId, ':', d.giftName, 'قيمتها', dc);
     const k = dc >= BIG ? 20 : dc >= MID ? 5 : 1;
     send({ t: 'gift', u: d.user?.uniqueId || d.uniqueId, k });
   });
